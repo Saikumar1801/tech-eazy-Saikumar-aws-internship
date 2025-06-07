@@ -30,7 +30,7 @@ This is a full-stack parcel management application built for the Tech Eazy AWS I
 cd parcel-service
 
 # Run the Spring Boot application
-./mvnw spring-boot:run
+./mvnw spring-boot:run # or use mvnw.cmd spring-boot:run
 ```
 
 The backend will be running on http://localhost:8080.
