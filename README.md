@@ -45,7 +45,7 @@ npm install
 ```
 # Start the development server
 ```bash
-npm start
+set PORT=80 && npm start
 ```
 The frontend will be running on http://localhost:3000.
 # API Endpoints
