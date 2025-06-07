@@ -1,0 +1,6 @@
+com\techeazy\internship\parcel_service\ParcelServiceApplication.class
+com\techeazy\internship\parcel_service\controller\ParcelController.class
+com\techeazy\internship\parcel_service\service\ParcelService.class
+com\techeazy\internship\parcel_service\entity\Parcel.class
+com\techeazy\internship\parcel_service\dto\ParcelDTO.class
+com\techeazy\internship\parcel_service\repository\ParcelRepo.class
