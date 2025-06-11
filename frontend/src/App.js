@@ -1,32 +1,28 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import ParcelsPage from './pages/ParcelsPage';
-import Navbar from './components/Navbar';
+import React, { useState } from 'react';
+import ParcelList from './components/ParcelList';
+import ParcelForm from './components/ParcelForm';
 import './App.css';
 
-const ProtectedRoute = ({ children }) => {
-    const { token } = useAuth();
-    return token ? children : <Navigate to="/login" replace />;
-};
-
 function App() {
-    return (
-        <AuthProvider>
-            <Router>
-                <Navbar />
-                <main className="container">
-                    <Routes>
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-                        <Route path="/parcels" element={<ProtectedRoute><ParcelsPage /></ProtectedRoute>} />
-                        <Route path="/" element={<Navigate to="/dashboard" />} />
-                    </Routes>
-                </main>
-            </Router>
-        </AuthProvider>
-    );
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // This function will be called from both the form and the list to trigger a refresh
+  const forceRefresh = () => {
+    setRefreshKey(prevKey => prevKey + 1);
+  };
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <h1>Parcel Management System</h1>
+      </header>
+      <main style={{ padding: '20px' }}>
+        <ParcelForm onParcelCreated={forceRefresh} />
+        <hr style={{ margin: '20px 0' }} />
+        <ParcelList refreshKey={refreshKey} onListUpdated={forceRefresh} />
+      </main>
+    </div>
+  );
 }
+
 export default App;
