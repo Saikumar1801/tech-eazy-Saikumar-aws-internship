@@ -1,147 +1,349 @@
 {
 	"info": {
-		"_postman_id": "a8f3c1d2-e4b5-4a6c-8b9d-1f2a3c4d5e6f",
-		"name": "Tech Eazy - Parcel Service API",
-		"description": "A collection of API endpoints for the Parcel Management System.",
+		"_postman_id": "f5d7b8a9-c0e1-4b3f-b4a1-e1d2e3f4g5h6",
+		"name": "TechEazy Parcel Service API",
+		"description": "Complete API collection for all three assignments, including role-based access control.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Create a Parcel",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"customerName\": \"Jane Doe\",\n    \"deliveryAddress\": \"456 Oak Avenue, Sometown\",\n    \"contactNumber\": \"555-987-6543\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Auth",
+			"description": "Endpoints for user registration and login.",
+			"item": [
+				{
+					"name": "1. Register New Vendor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"myntra\",\r\n    \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registers a new user. By default, they are assigned the VENDOR role."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Login (Vendor/Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// This script runs after the request is successful.",
+									"// It automatically saves the JWT token for you.",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+									"    console.log(\"JWT Token saved successfully!\");",
+									"} else {",
+									"    console.log(\"Could not find token in response.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
 						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/api/parcels",
-					"protocol": "http",
-					"host": [
-						"localhost"
 					],
-					"port": "8080",
-					"path": [
-						"api",
-						"parcels"
-					]
-				},
-				"description": "Creates a new parcel and saves it in memory. Returns the created parcel with its generated tracking number."
-			},
-			"response": []
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"myntra\",\r\n    \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Logs in a user (vendor or admin) and saves the returned JWT to a collection variable named `jwt_token`. To log in as admin, use username `admin` and password `adminpass`."
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"name": "Get All Parcels",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/api/parcels",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"parcels"
-					]
-				},
-				"description": "Retrieves a list of all parcels currently stored in the system."
-			},
-			"response": []
+			"name": "Public Endpoints",
+			"description": "Endpoints accessible to anyone without logging in.",
+			"item": [
+				{
+					"name": "Track Parcel by Tracking ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/public/parcels/TE-12345678",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"public",
+								"parcels",
+								"TE-12345678"
+							]
+						},
+						"description": "Public endpoint to track a parcel. No authentication needed. Replace the tracking ID with a real one after creating a parcel as admin."
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"name": "Get Parcel by ID",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/api/parcels/TE-TRACKINGID",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"parcels",
-						"TE-TRACKINGID"
-					]
+			"name": "Vendor Role",
+			"description": "Endpoints only accessible to users with the VENDOR role.",
+			"item": [
+				{
+					"name": "Upload Delivery Order File",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/delivery-orders/upload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"delivery-orders",
+								"upload"
+							]
+						},
+						"description": "As a VENDOR, upload a file of orders. Auth token is required. You must manually select a file for the 'file' key in the Body tab."
+					},
+					"response": []
 				},
-				"description": "Retrieves a single parcel by its unique tracking ID. Replace `TE-TRACKINGID` with an actual ID from a created parcel."
-			},
-			"response": []
+				{
+					"name": "Get My Delivery Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/delivery-orders",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"delivery-orders"
+							]
+						},
+						"description": "As a VENDOR, get a paginated list of your own delivery orders. The backend identifies the vendor from the JWT."
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"name": "Update a Parcel",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"customerName\": \"Jane Doe (Updated)\",\n    \"deliveryAddress\": \"789 Pine Street, Newville\",\n    \"contactNumber\": \"555-111-2222\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Admin Role",
+			"description": "Endpoints only accessible to users with the ADMIN role.",
+			"item": [
+				{
+					"name": "Parcel Management (Admin)",
+					"item": [
+						{
+							"name": "Get All Parcels",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/parcels",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"parcels"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Parcel",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"customerName\": \"Admin Test Customer\",\r\n    \"deliveryAddress\": \"789 Admin Ave, Control City\",\r\n    \"contactNumber\": \"555-000-1111\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/parcels",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"parcels"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Parcel by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/parcels/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"parcels",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Parcel",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"customerName\": \"Updated Customer Name\",\r\n    \"deliveryAddress\": \"Updated Address\",\r\n    \"contactNumber\": \"555-222-3333\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/parcels/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"parcels",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Parcel",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/parcels/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"parcels",
+										"1"
+									]
+								}
+							},
+							"response": []
 						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/api/parcels/TE-TRACKINGID",
-					"protocol": "http",
-					"host": [
-						"localhost"
 					],
-					"port": "8080",
-					"path": [
-						"api",
-						"parcels",
-						"TE-TRACKINGID"
-					]
+					"description": "Full CRUD operations for parcels."
 				},
-				"description": "Updates the details of an existing parcel. Replace `TE-TRACKINGID` with an actual ID."
-			},
-			"response": []
+				{
+					"name": "View All Delivery Orders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/delivery-orders?size=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"delivery-orders"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						},
+						"description": "As an ADMIN, get a paginated list of *all* delivery orders from *all* vendors."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
 		},
 		{
-			"name": "Delete a Parcel",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/api/parcels/TE-TRACKINGID",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"parcels",
-						"TE-TRACKINGID"
-					]
-				},
-				"description": "Deletes a parcel from memory using its tracking ID. Replace `TE-TRACKINGID` with an actual ID."
-			},
-			"response": []
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
 		}
 	]
 }
