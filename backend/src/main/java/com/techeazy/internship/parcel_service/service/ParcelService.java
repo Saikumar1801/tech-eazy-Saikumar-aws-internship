@@ -2,7 +2,8 @@ package com.techeazy.internship.parcel_service.service;
 
 import com.techeazy.internship.parcel_service.dto.ParcelDTO;
 import com.techeazy.internship.parcel_service.entity.Parcel;
-import com.techeazy.internship.parcel_service.repository.ParcelRepo;
+import com.techeazy.internship.parcel_service.repository.ParcelRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,50 +11,46 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ParcelService {
 
-    private final ParcelRepo parcelRepo;
-
-    public ParcelService(ParcelRepo parcelRepo) {
-        this.parcelRepo = parcelRepo;
-    }
+    private final ParcelRepository parcelRepository;
 
     public Parcel createParcel(ParcelDTO parcelDTO) {
-        String trackingNumber = "TE-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-
-        Parcel newParcel = new Parcel(
-                trackingNumber,
-                parcelDTO.getCustomerName(),
-                parcelDTO.getDeliveryAddress(),
-                parcelDTO.getContactNumber(),
-                "Medium",
-                5.0
-        );
-
-        return parcelRepo.save(newParcel);
+        Parcel parcel = new Parcel();
+        parcel.setCustomerName(parcelDTO.getCustomerName());
+        parcel.setDeliveryAddress(parcelDTO.getDeliveryAddress());
+        parcel.setContactNumber(parcelDTO.getContactNumber());
+        parcel.setTrackingNumber("TE-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+        parcel.setParcelSize("Medium");
+        parcel.setParcelWeight(5.0);
+        return parcelRepository.save(parcel);
     }
 
     public List<Parcel> getAllParcels() {
-        return parcelRepo.findAll();
+        return parcelRepository.findAll();
     }
 
-    public Optional<Parcel> getParcelByTrackingId(String trackingId) {
-        return parcelRepo.findByTrackingNumber(trackingId);
+    // Admin uses the primary key 'Long id' for specific lookup
+    public Optional<Parcel> getParcelById(Long id) {
+        return parcelRepository.findById(id);
     }
 
-
-    public void deleteParcel(String trackingId) {
-        parcelRepo.deleteByTrackingNumber(trackingId);
+    // Public users use the 'String trackingNumber'
+    public Optional<Parcel> getParcelByTrackingNumber(String trackingNumber) {
+        return parcelRepository.findByTrackingNumber(trackingNumber);
     }
 
+    public Optional<Parcel> updateParcel(Long id, ParcelDTO parcelDetails) {
+        return parcelRepository.findById(id).map(existingParcel -> {
+            existingParcel.setCustomerName(parcelDetails.getCustomerName());
+            existingParcel.setDeliveryAddress(parcelDetails.getDeliveryAddress());
+            existingParcel.setContactNumber(parcelDetails.getContactNumber());
+            return parcelRepository.save(existingParcel);
+        });
+    }
 
-    public Optional<Parcel> updateParcel(String trackingId, ParcelDTO updateData) {
-        return parcelRepo.findByTrackingNumber(trackingId)
-                .map(existingParcel -> {
-                    existingParcel.setCustomerName(updateData.getCustomerName());
-                    existingParcel.setDeliveryAddress(updateData.getDeliveryAddress());
-                    existingParcel.setContactNumber(updateData.getContactNumber());
-                    return parcelRepo.save(existingParcel);
-                });
+    public void deleteParcel(Long id) {
+        parcelRepository.deleteById(id);
     }
 }
